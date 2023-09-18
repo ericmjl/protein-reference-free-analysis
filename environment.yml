@@ -32,6 +32,7 @@ dependencies:
   - pytest
   - coverage
   - pytest-cov
+  - beartype=0.15.0 # pinned so that we can use llamabot. Remove this pin once the issue is fixed upstream.
   # Code Style Tools
   - black
   - darglint
