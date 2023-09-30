@@ -49,7 +49,6 @@ def get_indices_with_particular_states(
     :param sites: The site indices.
         Should be of shape (k,).
 
-
     :param genotypes: A collection of genotypes.
         Should be of shape (num_genotypes, num_sites, num_states).
     :param states: The genotype states that should be matched.
