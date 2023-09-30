@@ -52,6 +52,9 @@ testpaths = [
 [tool.isort]
 profile = "black"
 
+[tool.ruff]
+select = ["E", "F", "I"]
+
 [tool.setuptools]
 include-package-data = true
 packages = ["protein_reference_free_analysis"]
