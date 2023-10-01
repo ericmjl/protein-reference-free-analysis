@@ -155,10 +155,6 @@ def get_second_order_effect(e_2: np.ndarray, genotype: np.ndarray) -> np.ndarray
         state1_idx = np.where(np.sum(states == state1, axis=1) == num_states)[0]
         state2 = genotype.at[site2_idx].get()
         state2_idx = np.where(np.sum(states == state2, axis=1) == num_states)[0]
-        print(site1_idx, site2_idx)
-        print(state1, state2)
-        print(state1_idx, state2_idx)
         effect = e_2.at[site1_idx, state1_idx, site2_idx, state2_idx].get()
-        print(effect)
         effects.append(effect)
     return np.sum(np.array(effects))
