@@ -57,7 +57,9 @@ def test_overall_model_random_genotype(seed, num_states, num_sites):
     """Test that the overall model works as expected with random genotypes.
 
     This test tests that after calculating zeroth, first, and second order effects,
-    they can be recalculated correctly.
+    the re-calculated phenotypes are correlated with the original phenotypes.
+    This kind of shows that the model is capable of learning something
+    even when the genotypes are random, possibly indicating a limitation of the model.
 
     :param seed: Seed number for JAX's PRNG.
     :param num_states: The number of states per site.
