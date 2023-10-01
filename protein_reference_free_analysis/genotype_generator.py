@@ -19,6 +19,4 @@ def make_comprehensive_genotypes(num_states: int, num_sites: int) -> np.ndarray:
         genotypes.append(genotype)
     genotypes = np.array(genotypes)
 
-    # Test:
-
     return genotypes
