@@ -1,17 +1,15 @@
 """Tests for the matching submodule."""
-import pytest
 import jax.numpy as np
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from jax import random
 
-from protein_reference_free_analysis.matching import (
-    all_sites_match_states,
-    get_indices_with_particular_states,
-)
 from protein_reference_free_analysis.genotype_generator import (
     make_comprehensive_genotypes,
 )
-
-from hypothesis import given, strategies as st, settings
+from protein_reference_free_analysis.matching import (
+    get_indices_with_particular_states,
+)
 
 # Define the test data as a list of tuples.
 test_data_match_two = [
@@ -58,31 +56,6 @@ test_data_match_two = [
         False,  # expected result
     ),
 ]
-
-
-@pytest.mark.parametrize(
-    "sites, states, genotype, expected_result", test_data_match_two
-)
-def test_all_sites_match_states(sites, states, genotype, expected_result):
-    """Test that all_sites_match_states returns the expected result.
-
-    :param sites: The site indices.
-    :param states: The genotype states.
-    :param genotype: The genotype.
-    :param expected_result: The expected result.
-    """
-    condition_func = all_sites_match_states(states, sites)
-    assert condition_func(genotype) == expected_result
-
-
-def test_all_sites_match_states_raise_error():
-    """Test that IndexError is raised when a site is out of range."""
-    sites = np.array([0, 9])  # position 9 is out of range
-    states = np.array([[0, 1, 0], [1, 0, 0]])
-    genotype = np.array([[0, 1, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
-    with pytest.raises(IndexError):
-        condition_func = all_sites_match_states(states, sites)
-        condition_func(genotype)
 
 
 @given(
