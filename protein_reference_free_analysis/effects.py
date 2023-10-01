@@ -117,3 +117,48 @@ def second_order_effects(genotypes: np.ndarray, phenotypes: np.ndarray):
             )
             effects = effects.at[site1, state1, site2, state2].set(effect)
     return effects
+
+
+def get_first_order_effect(e_1: np.ndarray, genotype: np.ndarray) -> np.ndarray:
+    """Get first-order effects for a particular genotype.
+
+    :param e_1: The first-order effects.
+        Should be of shape (num_sites, num_states).
+    :param genotype: The genotype of interest.
+        Should be of shape (num_sites, num_states)
+    :returns: The first-order effect for `genotype`.
+    """
+    effects = []
+    num_sites, num_states = genotype.shape
+    states = np.eye(num_states, dtype=int)
+    for site in range(num_sites):
+        state = genotype.at[site].get()
+        state_idx = np.where(np.sum(states == state, axis=1) == num_states)[0]
+        effects.append(e_1.at[site, state_idx].get())
+    return np.sum(np.array(effects))
+
+
+def get_second_order_effect(e_2: np.ndarray, genotype: np.ndarray) -> np.ndarray:
+    """Get the second-order effects for a particular genotype.
+
+    :param e_2: The second-order effects.
+        Should be of shape (num_sites, num_states, num_sites, num_states).
+    :param genotype: The genotype of interest.
+        Should be of shape (num_sites, num_states)
+    :returns: The second-order effect for `genotype`.
+    """
+    effects = []
+    num_sites, num_states = genotype.shape
+    states = np.eye(num_states, dtype=int)
+    for site1_idx, site2_idx in combinations(range(num_sites), 2):
+        state1 = genotype.at[site1_idx].get()
+        state1_idx = np.where(np.sum(states == state1, axis=1) == num_states)[0]
+        state2 = genotype.at[site2_idx].get()
+        state2_idx = np.where(np.sum(states == state2, axis=1) == num_states)[0]
+        print(site1_idx, site2_idx)
+        print(state1, state2)
+        print(state1_idx, state2_idx)
+        effect = e_2.at[site1_idx, state1_idx, site2_idx, state2_idx].get()
+        print(effect)
+        effects.append(effect)
+    return np.sum(np.array(effects))
