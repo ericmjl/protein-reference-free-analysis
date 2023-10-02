@@ -5,7 +5,7 @@ from itertools import product
 import jax.numpy as np
 
 
-def make_comprehensive_genotypes(num_states: int, num_sites: int) -> np.ndarray:
+def make_comprehensive_genotypes(num_sites: int, num_states: int) -> np.ndarray:
     """Make a comprehensive genotype matrix.
 
     :param num_states: The number of genotype states desired.

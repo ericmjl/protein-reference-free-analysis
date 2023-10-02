@@ -60,25 +60,21 @@ test_data_match_two = [
 
 @given(
     num_states=st.integers(min_value=2, max_value=4),
-    num_positions=st.integers(min_value=1, max_value=3),
+    num_sites=st.integers(min_value=1, max_value=3),
     seed=st.integers(min_value=0, max_value=100),
 )
 @settings(deadline=None)
-def test_get_indices_with_particular_states(
-    num_states: int, num_positions: int, seed: int
-):
+def test_get_indices_with_particular_states(num_sites: int, num_states: int, seed: int):
     """Test get_indices_with_particular_states function.
 
     This test tests that get_indices_with_particular_states returns a list of indices.
     It must contain at least one element that is a valid index.
 
     :param num_states: The number of states to generate.
-    :param num_positions: The number of positions to generate.
+    :param num_sites: The number of positions to generate.
     :param seed: The seed for the random number generator.
     """
-    genotypes = make_comprehensive_genotypes(
-        num_states=num_states, num_positions=num_positions
-    )
+    genotypes = make_comprehensive_genotypes(num_sites=num_sites, num_states=num_states)
     # randomly pick a genotype, and then randomly pick a site within that genotype.
     key = random.PRNGKey(seed)
     k1, k2 = random.split(key, 2)

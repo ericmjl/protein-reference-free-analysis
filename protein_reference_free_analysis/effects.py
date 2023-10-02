@@ -5,6 +5,8 @@ This file implements the zeroth, first, and second order effects.
 from itertools import combinations, product
 
 import jax.numpy as np
+from jax import random
+from tqdm.auto import tqdm
 
 from .matching import get_indices_with_particular_states
 
@@ -158,3 +160,70 @@ def get_second_order_effect(e_2: np.ndarray, genotype: np.ndarray) -> np.ndarray
         effect = e_2.at[site1_idx, state1_idx, site2_idx, state2_idx].get()
         effects.append(effect)
     return np.sum(np.array(effects))
+
+
+def random_first_order_effects(
+    genotypes: np.ndarray, key: random.PRNGKey
+) -> np.ndarray:
+    """Generate random first-order effects.
+
+    :param genotypes: The one-hot genotype matrix.
+        Should be of shape (num_genotypes, num_sites, num_states).
+    :param key: A PRNGKey.
+    :returns: The random first-order effects.
+    """
+
+    num_genotypes, num_sites, num_states = genotypes.shape
+    e_1 = random.normal(key, shape=(num_sites, num_states))
+    e_1 = e_1 - np.mean(e_1)
+    return e_1
+
+
+def random_second_order_effects(
+    genotypes: np.ndarray, key: random.PRNGKey
+) -> np.ndarray:
+    """Generate random second-order effects.
+
+    :param genotypes: The one-hot genotype matrix.
+        Should be of shape (num_genotypes, num_sites, num_states).
+    :param key: A PRNGKey.
+    :returns: The random second-order effects.
+    """
+    num_genotypes, num_sites, num_states = genotypes.shape
+    num_elements = num_states**2 * np.sum(np.array(range(0, num_sites)))
+    values = random.normal(key, (num_elements,))
+    values = values - np.mean(values)
+
+    e_2 = np.zeros((num_sites, num_states, num_sites, num_states))
+    ix = 0
+    for site1_idx, site2_idx in combinations(range(num_sites), r=2):
+        for state1_idx, state2_idx in product(range(num_states), repeat=2):
+            value = values[ix]
+            e_2 = e_2.at[site1_idx, state1_idx, site2_idx, state2_idx].set(value)
+            ix = ix + 1
+    return e_2
+
+
+def calculate_phenotypes(
+    e_0: float, e_1: np.ndarray, e_2: np.ndarray, genotypes: np.ndarray
+) -> np.ndarray:
+    """Calculate phenotypes for each genotype.
+
+    :param e_0: Zeroth order effect.
+    :param e_1: First order effects.
+        Should be of shape (num_sites, num_states).
+    :param e_2: Second order effects.
+        Should be of shape (num_sites, num_states, num_sites, num_states).
+    :param genotypes: The collection of genotypes for which to calculate phenotypes.
+    :returns: The phenotype for each genotype in `genotypes`.
+    """
+    phenotypes = []
+    for genotype in tqdm(genotypes):
+        phenotype = (
+            e_0
+            + get_first_order_effect(e_1, genotype)
+            + get_second_order_effect(e_2, genotype)
+        )
+        phenotypes.append(phenotype)
+    phenotypes = np.array(phenotypes)
+    return phenotypes

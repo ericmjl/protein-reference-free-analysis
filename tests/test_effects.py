@@ -20,7 +20,7 @@ def genotypes():
 
     :returns: a comprehensive set of genotypes.
     """
-    return make_comprehensive_genotypes(num_states=2, num_positions=3)
+    return make_comprehensive_genotypes(num_sites=3, num_states=2)
 
 
 @pytest.mark.parametrize("seed", [0, 10, 20, 30])
