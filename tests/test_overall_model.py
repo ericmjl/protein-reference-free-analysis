@@ -96,15 +96,14 @@ def test_overall_model_with_random_effects():
     are different from the randomly-generated effects,
     we still calculate the correct phenotypes.
     """
-    genotypes = make_comprehensive_genotypes(num_sites=4, num_states=3)
     key = random.PRNGKey(0)
     k1, k2, k3 = random.split(key, 3)
 
+    # Simulate phenotypes using random effects.
+    genotypes = make_comprehensive_genotypes(num_sites=4, num_states=3)
     e_0 = random.normal(k1)
-
     e_1 = random_first_order_effects(genotypes, k2)
     e_2 = random_second_order_effects(genotypes, k3)
-
     phenotypes_true = calculate_phenotypes(e_0, e_1, e_2, genotypes)
 
     # Now, infer the effects from genotype-phenotype.
@@ -115,4 +114,5 @@ def test_overall_model_with_random_effects():
     # Finally, re-calculate phenotypes
     phenotypes_est = calculate_phenotypes(e_0_est, e_1_est, e_2_est, genotypes)
 
+    # Check #1: phenotypes_true and phenotypes_est should be the same.
     assert np.allclose(phenotypes_est, phenotypes_true, atol=1e-5)
