@@ -6,9 +6,12 @@ from jax import numpy as np
 from jax import random, vmap
 
 from protein_reference_free_analysis.effects import (
+    calculate_phenotypes,
     first_order_effects,
     get_first_order_effect,
     get_second_order_effect,
+    random_first_order_effects,
+    random_second_order_effects,
     second_order_effects,
     zeroth_order_effects,
 )
@@ -34,7 +37,7 @@ def test_overall_model_count_kth_genotype(k, num_states, num_sites):
     :param num_states: The number of states per site.
     :param num_sites: The number of sites.
     """
-    genotypes = make_comprehensive_genotypes(num_states=num_states, num_sites=num_sites)
+    genotypes = make_comprehensive_genotypes(num_sites=num_sites, num_states=num_states)
     count_geno = partial(count_kth_genotype, k=k)
     phenotypes = vmap(count_geno)(genotypes)
     e_0 = zeroth_order_effects(genotypes, phenotypes)
@@ -65,7 +68,7 @@ def test_overall_model_random_genotype(seed, num_states, num_sites):
     :param num_states: The number of states per site.
     :param num_sites: The number of sites.
     """
-    genotypes = make_comprehensive_genotypes(num_states=num_states, num_sites=num_sites)
+    genotypes = make_comprehensive_genotypes(num_sites=num_sites, num_states=num_states)
 
     key = random.PRNGKey(seed)
     keys = random.split(key, len(genotypes))
@@ -84,3 +87,32 @@ def test_overall_model_random_genotype(seed, num_states, num_sites):
         recalculated_phenotypes.append(recalculated_phenotype)
     recalculated_phenotypes = np.array(recalculated_phenotypes)
     assert np.corrcoef(recalculated_phenotypes, phenotypes)[0, 1] > 0
+
+
+def test_overall_model_with_random_effects():
+    """Test that the overall model works as expected with random effects.
+
+    This test asserts that even when the inferred effects
+    are different from the randomly-generated effects,
+    we still calculate the correct phenotypes.
+    """
+    genotypes = make_comprehensive_genotypes(num_sites=4, num_states=3)
+    key = random.PRNGKey(0)
+    k1, k2, k3 = random.split(key, 3)
+
+    e_0 = random.normal(k1)
+
+    e_1 = random_first_order_effects(genotypes, k2)
+    e_2 = random_second_order_effects(genotypes, k3)
+
+    phenotypes_true = calculate_phenotypes(e_0, e_1, e_2, genotypes)
+
+    # Now, infer the effects from genotype-phenotype.
+    e_0_est = zeroth_order_effects(genotypes, phenotypes_true)
+    e_1_est = first_order_effects(genotypes, phenotypes_true)
+    e_2_est = second_order_effects(genotypes, phenotypes_true)
+
+    # Finally, re-calculate phenotypes
+    phenotypes_est = calculate_phenotypes(e_0_est, e_1_est, e_2_est, genotypes)
+
+    assert np.allclose(phenotypes_est, phenotypes_true, atol=1e-5)
