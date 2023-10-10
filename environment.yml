@@ -13,6 +13,7 @@ dependencies:
   - mamba
   - pip
   - twine
+  - seqlike
   # Standard PyData stack
   - matplotlib
   - numpy
